@@ -1,16 +1,13 @@
 source 'https://github.com/CocoaPods/Specs'
+source 'https://git-apac.internal.tigerspike.com/ios/tscocoapodsspec.git'
 
 platform :ios, '<%= deployment_target %>'
 
 # Add Application pods here
+pod 'HockeySDK'
+pod 'TSCommons'
+pod 'Calabash', :configuration => ['calabash']
 
-target :unit_tests, :exclusive => true do
-  link_with '<%= test_target_name %>'
-  pod 'Specta'
-  pod 'Expecta'
-  pod 'OCMock'
-  pod 'OHHTTPStubs'
-end
 
 <% if enable_settings && use_cocoapods %>
 # Copy acknowledgements to the Settings.bundle

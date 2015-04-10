@@ -6,6 +6,7 @@ module Liftoff
       @test_target_name = configuration.test_target_name
       set_company_name(configuration.company)
       set_prefix(configuration.prefix)
+      add_build_configurations(xcode_project)
       configure_base_project_settings
     end
 
@@ -26,12 +27,36 @@ module Liftoff
       xcode_project.new_group(name, path)
     end
 
-    def generate_scheme
+    def add_build_configurations(target)
+      debug_dev = target.add_build_configuration("Debug-Dev", :debug)      
+      target.add_build_configuration("Debug-Uat", :debug)
+      target.add_build_configuration("Debug-Prod", :debug)
+      target.add_build_configuration("Calabash", :debug)
+      target.add_build_configuration("Release-Dev", :release)      
+      target.add_build_configuration("Release-Uat", :release)      
+      target.add_build_configuration("Release-Prod", :release)
+      target.add_build_configuration("Release-Store", :release)
+      xcode_project.save
+    end
+
+    def generate_schemes
+      generate_scheme("-Dev")
+      generate_scheme("-Uat")      
+      generate_scheme("-Prod")
+      generate_scheme("-Store")
+      generate_scheme("-calabash")
+    end
+
+    def generate_scheme(suffix)
       scheme = Xcodeproj::XCScheme.new
       scheme.add_build_target(app_target)
       scheme.add_test_target(unit_test_target)
       scheme.set_launch_target(app_target)
-      scheme.save_as(xcode_project.path, @name)
+      scheme.save_as(xcode_project.path, @name + suffix)
+    end
+
+    def build_configurations
+      xcode_project.build_configurations
     end
 
     private
@@ -83,6 +108,16 @@ module Liftoff
         configuration.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
         configuration.build_settings['SDKROOT'] = 'iphoneos'
         configuration.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = @deployment_target.to_s
+        # configuration.build_settings['PUBLIC_HEADERS_FOLDER_PATH'] = "$(TARGET_NAME)"
+        # configuration.build_settings['GCC_PRECOMPILE_PREFIX_HEADER'] = 'YES'
+        # configuration.build_settings['GINSTALL_PATH'] = "$(BUILT_PRODUCTS_DIR)"
+        configuration.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
+        configuration.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'YES'
+        if (configuration.name.start_with?('Debug')) 
+          configuration.build_settings['COPY_PHASE_STRIP'] = 'NO'
+        else
+          configuration.build_settings['COPY_PHASE_STRIP'] = 'YES'
+        end  
       end
     end
 
