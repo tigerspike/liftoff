@@ -1,7 +1,7 @@
 require 'formula'
 
 class Liftoff < Formula
-  homepage 'https://github.com/thoughtbot/liftoff'
+  homepage 'https://github.com/tigerspike/liftoff'
   url 'https://github.com/tigerspike/liftoff/releases/tag/__VERSION__-alpha.tar.gz'
   sha1 '__SHA__'
 
